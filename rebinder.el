@@ -1,11 +1,11 @@
-;;; rebinder.el --- Allow safe and dynamic rebinding of Emacs prefix keys -*- lexical-binding: t -*-
+;;; rebinder.el --- Allow safe and dynamic rebinding of prefix keys -*- lexical-binding: t -*-
 
 ;; Author: Abdulla Bubshait
 ;; URL: https://github.com/darkstego/rebinder.el
 ;; Created: 9 April 2018
-;; Keywords: prefix, leader, keybindings, keys
+;; Keywords: convenience, prefix, leader, keybindings, keys
 ;; Package-Requires: ((emacs "24.4"))
-;; Version: 0.1
+;; Version: 0.5
 
 ;; This file is not part of GNU Emacs.
 
@@ -26,7 +26,11 @@
 
 ;;; Commentary:
 
-;;
+;; This package allows users to easily rebind prefix keys like C-c and C-x
+;; to other keys.  These new prefixes dynamically generate the target keymap by
+;; propogating all active keymaps.  The package also takes care of overriding
+;; the behavior of those prefix keys so they can be used for any other function.
+;; This override is done by placing mappings to these keys in the minor-mode-overrding maps.
 
 ;;; Code:
 
@@ -34,9 +38,10 @@
 ;; Functions & Macros
 
 (defun rebinder-dynamic-binding (key &optional toggle)
-  "Act as prefix definition in the current context.
-    This uses an extended menu item's capability of dynamically computing a
-    definition. This idea came from general.el"
+  "Act as KEY definition in the current context.
+This uses an extended menu item's capability of dynamically computing a
+definition.  This idea came from general.el.
+TOGGLE changes keymaps associated from Ctrl to regular key and vice versa"
   `(menu-item
 	 ,""
 	 nil
@@ -47,7 +52,7 @@
 
 ;; should probably use let instead of double call to (car x)
 (defun rebinder-minor-mode-key-binding (key)
-  "Gets list of minor mode keybindings while ignoring the override map"
+  "Gets list of minor mode keybindings for KEY while ignoring the override map."
   (let ((active-maps nil))
 	 (mapc (lambda (x)
 				(when (and (symbolp (car x)) (symbol-value (car x)))
@@ -58,15 +63,16 @@
 
 ;; might need to do keymap inheretence to perserve priority
 (defun rebinder-key-binding (key &optional toggle)
-  "Gets the keymap of associated key. If toggle is non-nil then the Ctrl status of all bindings in the returned keymap
-   will be changed."
+  "Get the keymap of associated KEY.
+If TOGGLE is non-nil then the Ctrl status of all bindings in the returned keymap
+will be changed."
   (let ((map (make-composed-keymap (list (rebinder-minor-mode-key-binding key) (local-key-binding (kbd key)) (global-key-binding (kbd key))))))
 	 (if toggle
 		  (mapcar 'rebinder-toggle-ctrl map)
 		map)))
 
 (defun rebinder-toggle-ctrl (item)
-  "Returns a keymap with all Ctrl status of binding toggled"
+  "Return ITEM keymap with all Ctrl status of binding toggled."
   (cond
 	((and (listp item)
 			(not (listp (cdr item))))
@@ -86,7 +92,7 @@
 (defvar rebinder-linked-mode nil)
 
 (defun rebinder-override ()
-  "Add modemap to override C-c into minor-mode-overriding-map-alist"
+  "Add modemap to override prefix into ‘minor-mode-overriding-map-alist’."
   (interactive)
   (add-to-list 'minor-mode-overriding-map-alist (cons 'rebinder-mode rebinder-mode-map)))
 (add-hook 'after-change-major-mode-hook 'rebinder-override)
@@ -94,15 +100,16 @@
 
 ;; Remove overrides on mode exit
 (defun rebinder-update-override ()
-  "Enables and disables rebinder override keymap depending on status of
-  associated mode"
+  "Update override mode to match linked mode."
   (setq rebinder-mode (symbol-value rebinder-link-mode)))
   
 
 (defun rebinder-hook-to-mode (mode modehook)
-  "Link rebinder override map to associated mode"
+  "Link rebinder override map to associated MODE and MODEHOOK."
   (setq rebinder-link-mode mode)
   (add-hook modehook 'rebinder-update-override))
 
 
 (provide 'rebinder)
+
+;;; rebinder.el ends here
