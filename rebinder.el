@@ -72,24 +72,25 @@ will be changed."
 		map)))
 
 (defun rebinder-toggle-ctrl (item)
-  "Return ITEM keymap with all Ctrl status of binding toggled."
+  "Return ITEM key with all Ctrl status of binding toggled."
   (cond
 	((and (listp item)
-			(not (listp (cdr item))))
+	      (not (listp (cdr item))))
 	 (cons (rebinder-toggle-ctrl (car item)) (cdr item)))
 	((listp item)
 	 (mapcar 'rebinder-toggle-ctrl item))
 	((event-basic-type item)
 	 (let ((mods (event-modifiers item))
-			 (key (event-basic-type item)))
-		(if (member 'control mods)
-			 (event-convert-list (append (remove 'control mods) (list (event-basic-type item))))
-		  (event-convert-list (append (append mods '(control)) (list (event-basic-type item)))))))
+	       (key (event-basic-type item)))
+	   (if (member 'control mods)
+	       (event-convert-list (append (remove 'control mods) (list key)))
+	     (event-convert-list (append (append mods '(control)) (list key))))))
 	(t item)))
 
 
 (defvar rebinder-mode-map (make-sparse-keymap))
-(defvar rebinder-linked-mode nil)
+(defvar rebinder-link-mode)
+(defvar rebinder-mode)
 
 (defun rebinder-override ()
   "Add modemap to override prefix into ‘minor-mode-overriding-map-alist’."
