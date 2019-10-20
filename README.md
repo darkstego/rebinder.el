@@ -25,7 +25,7 @@ This is how to rebind the prefix key C-c to C-d and make C-c a pure copy
 (rebinder-hook-to-mode 'my-mode 'my-mode-hook)
 ```
 
-This will work for any keymap is is the proper way to rebind other keys like C-x
+This will work for any keymap and is the proper way to rebind other keys like C-x
 
 If you want to the prefix keymap to be returned with all the Ctrl modifiers toggled, then pass
 a non-nil second argument to *rebinder-dynamic-binding*
