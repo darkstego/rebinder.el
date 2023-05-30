@@ -19,7 +19,7 @@ Let's say you have a mode *my-mode* with a keymap *my-mode-map* and a hook *my-m
 This is how to rebind the prefix key C-c to C-d and make C-c a pure copy
 
 ```
-(define-key my-mode-map (kbd "C-d") (rebinder-dynamic-binding "C-c"))
+(define-key my-mode-map (kbd "C-h") (rebinder-dynamic-binding "C-c"))
 (define-key rebinder-mode-map (kbd "C-c") 'kill-ring-save)
 
 (rebinder-hook-to-mode 'my-mode 'my-mode-hook)
@@ -35,8 +35,8 @@ While the recommended method of changing bindings is creating your own mode map 
 as shown above, if you would like to edit the global map directly and set a permanent binding the above example
 will look like
 ```
-(define-key global-map (kbd "C-d") (rebinder-dynamic-binding "C-c"))
-(define-key rebinder-mode-map (kbd "C-c") 'backward-char)
+(define-key global-map (kbd "C-h") (rebinder-dynamic-binding "C-c"))
+(define-key rebinder-mode-map (kbd "C-c") 'kill-ring-save)
 
 (rebinder-hook-to-mode 't 'after-change-major-mode-hook)
 ```
